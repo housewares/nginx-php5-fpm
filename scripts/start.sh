@@ -82,6 +82,43 @@ if [ -f /var/www/html/conf/nginx/nginx-site-ssl.conf ]; then
   fi
 fi
 
+# Configure FPM
+# Ugly, refactor to single sed command later
+if [ ! -z "$FPM_pm" ]
+then
+  sed -i -E "s@\s*;*\s*(pm\s*=\s*).*@\1${FPM_pm}@g" "${fpm_conf}"
+fi
+
+if [ ! -z "$FPM_pm_max_children" ]
+then
+  sed -i -E "s@\s*;*\s*(pm.max_children\s*=\s*).*@\1${FPM_pm_max_children}@g" "${fpm_conf}"
+fi
+
+if [ ! -z "$FPM_pm_start_servers" ]
+then
+  sed -i -E "s@\s*;*\s*(pm.start_servers\s*=\s*).*@\1${FPM_pm_start_servers}@g" "${fpm_conf}"
+fi
+
+if [ ! -z "$FPM_pm_min_spare_servers" ]
+then
+  sed -i -E "s@\s*;*\s*(pm.min_spare_servers\s*=\s*).*@\1${FPM_pm_min_spare_servers}@g" "${fpm_conf}"
+fi
+
+if [ ! -z "$FPM_pm_max_spare_servers" ]
+then
+  sed -i -E "s@\s*;*\s*(pm.max_spare_servers\s*=\s*).*@\1${FPM_pm_max_spare_servers}@g" "${fpm_conf}"
+fi
+
+if [ ! -z "$FPM_pm_max_requests" ]
+then
+  sed -i -E "s@\s*;*\s*(pm.max_requests\s*=\s*).*@\1${FPM_pm_max_requests}@g" "${fpm_conf}"
+fi
+
+if [ ! -z "$FPM_pm_process_idle_timeout" ]
+then
+  sed -i -E "s@\s*;*\s*(pm.process_idle_timeout\s*=\s*).*@\1${FPM_pm_process_idle_timeout}@g" "${fpm_conf}"
+fi
+
 # Display PHP error's or not
 if [[ "$ERRORS" != "1" ]] ; then
  echo php_flag[display_errors] = off >> "${fpm_conf}"
