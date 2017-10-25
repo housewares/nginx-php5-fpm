@@ -134,20 +134,30 @@ else
 fi
 
 # Pass real-ip to logs when behind ELB, etc
-if [[ "$REAL_IP_HEADER" == "1" ]] ; then
- sed -i "s/#real_ip_header X-Forwarded-For;/real_ip_header X-Forwarded-For;/" /etc/nginx/sites-available/default.conf
+if [[ -z "$REAL_IP_HEADER"]] ; then
+  REAL_IP_FROM=(${REAL_IP_FROM})
+  NGINX_REAL_IP_FROM=''
+
+  for (( i=0; i<${#REAL_IP_FROM[@]}; i++ ))
+  do
+    NGINX_REAL_IP_FROM+="set_real_ip_from ${REAL_IP_FROM[$i]}; "
+  done
+fi
+
+if [[ -z "$REAL_IP_HEADER"]] ; then
+ sed -i -E "s/#(real_ip_header) X-Forwarded-For;/\1 ${$REAL_IP_HEADER};/" /etc/nginx/sites-available/default.conf
  sed -i "s/#set_real_ip_from/set_real_ip_from/" /etc/nginx/sites-available/default.conf
  if [ ! -z "$REAL_IP_FROM" ]; then
-  sed -i "s#172.16.0.0/12#$REAL_IP_FROM#" /etc/nginx/sites-available/default.conf
+  sed -i -E "s|set_real_ip_from 0\.0\.0\.0/0;|${NGINX_REAL_IP_FROM}|" /etc/nginx/sites-available/default.conf
  fi
 fi
 # Do the same for SSL sites
 if [ -f /etc/nginx/sites-available/default-ssl.conf ]; then
- if [[ "$REAL_IP_HEADER" == "1" ]] ; then
-  sed -i "s/#real_ip_header X-Forwarded-For;/real_ip_header X-Forwarded-For;/" /etc/nginx/sites-available/default-ssl.conf
+ if [[ -z "$REAL_IP_HEADER"]] ; then
+  sed -i -E "s/#(real_ip_header) X-Forwarded-For;/\1 ${$REAL_IP_HEADER};/" /etc/nginx/sites-available/default-ssl.conf
   sed -i "s/#set_real_ip_from/set_real_ip_from/" /etc/nginx/sites-available/default-ssl.conf
   if [ ! -z "$REAL_IP_FROM" ]; then
-   sed -i "s#172.16.0.0/12#$REAL_IP_FROM#" /etc/nginx/sites-available/default-ssl.conf
+   sed -i -E "s|set_real_ip_from 0\.0\.0\.0/0;|${NGINX_REAL_IP_FROM}|" /etc/nginx/sites-available/default-ssl.conf
   fi
  fi
 fi
