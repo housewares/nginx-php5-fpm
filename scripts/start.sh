@@ -145,7 +145,7 @@ if [[ ! -z "$NGINX_REAL_IP_HEADER" ]] ; then
 fi
 
 if [[ ! -z "$NGINX_REAL_IP_HEADER" ]] ; then
- sed -i -E "s/#(real_ip_header) X-Forwarded-For;/\1 ${$NGINX_REAL_IP_HEADER};/" /etc/nginx/sites-available/default.conf
+ sed -i -E "s/#(real_ip_header) X-Forwarded-For;/\1 $NGINX_REAL_IP_HEADER;/" /etc/nginx/sites-available/default.conf
  sed -i "s/#set_real_ip_from/set_real_ip_from/" /etc/nginx/sites-available/default.conf
  if [ ! -z "$NGINX_REAL_IP_FROM" ]; then
   sed -i -E "s|set_real_ip_from 0\.0\.0\.0/0;|${CONF_NGINX_REAL_IP_FROM}|" /etc/nginx/sites-available/default.conf
