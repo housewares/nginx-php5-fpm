@@ -134,30 +134,30 @@ else
 fi
 
 # Pass real-ip to logs when behind ELB, etc
-if [[ -z "$REAL_IP_HEADER"]] ; then
-  REAL_IP_FROM=(${REAL_IP_FROM})
-  NGINX_REAL_IP_FROM=''
+if [[ -z "$NGINX_REAL_IP_HEADER"]] ; then
+  NGINX_REAL_IP_FROM=(${NGINX_REAL_IP_FROM})
+  CONF_NGINX_REAL_IP_FROM=''
 
-  for (( i=0; i<${#REAL_IP_FROM[@]}; i++ ))
+  for (( i=0; i<${#NGINX_REAL_IP_FROM[@]}; i++ ))
   do
-    NGINX_REAL_IP_FROM+="set_real_ip_from ${REAL_IP_FROM[$i]}; "
+    CONF_NGINX_REAL_IP_FROM+="set_real_ip_from ${NGINX_REAL_IP_FROM[$i]}; "
   done
 fi
 
-if [[ -z "$REAL_IP_HEADER"]] ; then
- sed -i -E "s/#(real_ip_header) X-Forwarded-For;/\1 ${$REAL_IP_HEADER};/" /etc/nginx/sites-available/default.conf
+if [[ -z "$NGINX_REAL_IP_HEADER"]] ; then
+ sed -i -E "s/#(real_ip_header) X-Forwarded-For;/\1 ${$NGINX_REAL_IP_HEADER};/" /etc/nginx/sites-available/default.conf
  sed -i "s/#set_real_ip_from/set_real_ip_from/" /etc/nginx/sites-available/default.conf
- if [ ! -z "$REAL_IP_FROM" ]; then
-  sed -i -E "s|set_real_ip_from 0\.0\.0\.0/0;|${NGINX_REAL_IP_FROM}|" /etc/nginx/sites-available/default.conf
+ if [ ! -z "$NGINX_REAL_IP_FROM" ]; then
+  sed -i -E "s|set_real_ip_from 0\.0\.0\.0/0;|${CONF_NGINX_REAL_IP_FROM}|" /etc/nginx/sites-available/default.conf
  fi
 fi
 # Do the same for SSL sites
 if [ -f /etc/nginx/sites-available/default-ssl.conf ]; then
- if [[ -z "$REAL_IP_HEADER"]] ; then
-  sed -i -E "s/#(real_ip_header) X-Forwarded-For;/\1 ${$REAL_IP_HEADER};/" /etc/nginx/sites-available/default-ssl.conf
+ if [[ -z "$NGINX_REAL_IP_HEADER"]] ; then
+  sed -i -E "s/#(real_ip_header) X-Forwarded-For;/\1 ${$NGINX_REAL_IP_HEADER};/" /etc/nginx/sites-available/default-ssl.conf
   sed -i "s/#set_real_ip_from/set_real_ip_from/" /etc/nginx/sites-available/default-ssl.conf
-  if [ ! -z "$REAL_IP_FROM" ]; then
-   sed -i -E "s|set_real_ip_from 0\.0\.0\.0/0;|${NGINX_REAL_IP_FROM}|" /etc/nginx/sites-available/default-ssl.conf
+  if [ ! -z "$NGINX_REAL_IP_FROM" ]; then
+   sed -i -E "s|set_real_ip_from 0\.0\.0\.0/0;|${CONF_NGINX_REAL_IP_FROM}|" /etc/nginx/sites-available/default-ssl.conf
   fi
  fi
 fi
